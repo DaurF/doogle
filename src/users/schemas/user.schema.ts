@@ -24,6 +24,7 @@ export class User {
     age?: number;
     location?: string;
     interests?: string[];
+    pictureUrl: string;
   };
 
   @Prop({ type: [Types.ObjectId], ref: 'Order', default: [] })
