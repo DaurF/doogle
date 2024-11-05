@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Headers,
+  NotFoundException,
+  Param,
+  Patch,
+  Post,
+} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 
@@ -14,5 +23,24 @@ export class UsersController {
   @Get()
   findAll() {
     return this.usersService.findAll();
+  }
+
+  @Patch(':productId')
+  favorite(
+    @Param('productId') productId: string,
+    @Headers('User') username: string,
+  ) {
+    return this.usersService.favorite(username, productId);
+  }
+
+  @Get('purchase-history')
+  async getPurchaseHistory(
+    @Headers('User') username: string, // Get username from headers
+  ) {
+    if (!username) {
+      throw new NotFoundException('Username header is required');
+    }
+
+    return await this.usersService.getPurchaseHistory(username);
   }
 }

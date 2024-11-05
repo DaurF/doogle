@@ -5,6 +5,8 @@ import { Producer } from '../../producers/schemas/producer.schema';
 
 @Schema()
 export class Product {
+  _id: Types.ObjectId;
+
   @Prop({ required: true })
   name: string;
 

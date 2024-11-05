@@ -12,5 +12,6 @@ import { Interaction, InteractionSchema } from './schemas/interaction.schema';
   ],
   controllers: [InteractionsController],
   providers: [InteractionsService],
+  exports: [MongooseModule],
 })
 export class InteractionsModule {}
