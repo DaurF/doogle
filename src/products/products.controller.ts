@@ -7,9 +7,11 @@ import {
   Delete,
   Headers,
   NotFoundException,
+  Patch,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
+import { UpdateProductDto } from './dto/update-product.dto';
 
 @Controller('products')
 export class ProductsController {
@@ -40,6 +42,14 @@ export class ProductsController {
     @Headers('User') username: string,
   ) {
     return this.productsService.findOne(productId, username);
+  }
+
+  @Patch(':id')
+  async updateProduct(
+    @Param('id') productId: string,
+    @Body() updateData: UpdateProductDto,
+  ) {
+    return this.productsService.updateProduct(productId, updateData);
   }
 
   @Delete(':id')

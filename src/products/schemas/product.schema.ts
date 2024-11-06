@@ -13,14 +13,14 @@ export class Product {
   @Prop({ required: true })
   description: string;
 
-  @Prop({ required: true, type: Types.ObjectId, ref: 'Producer' })
-  producer: Producer | string;
+  @Prop({ required: true, type: Producer })
+  producer: Producer;
 
   @Prop({
-    type: Types.ObjectId,
-    ref: 'Category',
+    required: true,
+    type: Category,
   })
-  category?: Category;
+  category: Category;
 
   @Prop({ required: true })
   price: number;

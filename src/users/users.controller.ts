@@ -10,6 +10,7 @@ import {
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
+import { Product } from '../products/schemas/product.schema';
 
 @Controller('users')
 export class UsersController {
@@ -26,11 +27,8 @@ export class UsersController {
   }
 
   @Patch(':productId')
-  favorite(
-    @Param('productId') productId: string,
-    @Headers('User') username: string,
-  ) {
-    return this.usersService.favorite(username, productId);
+  favorite(@Headers('User') username: string, @Body() product: Product) {
+    return this.usersService.toggleFavoriteProduct(username, product);
   }
 
   @Get('purchase-history')

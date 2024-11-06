@@ -21,14 +21,34 @@ export class ProductsService {
   ) {}
 
   create(createProductDto: CreateProductDto) {
-    const newProduct = new this.productModel(createProductDto);
-    return newProduct.save();
+    try {
+      const newProduct = new this.productModel(createProductDto);
+      return newProduct.save();
+    } catch (err) {
+      throw new Error('Something wrong');
+    }
+  }
+
+  async updateProduct(productId: string, updateData: Partial<Product>) {
+    const updatedProduct = await this.productModel
+      .findByIdAndUpdate(
+        productId,
+        { $set: updateData },
+        { new: true, runValidators: true },
+      )
+      .exec();
+
+    if (!updatedProduct) {
+      throw new NotFoundException(`Product with ID ${productId} not found`);
+    }
+
+    return updatedProduct;
   }
 
   async findAll(username: string) {
-    const user = await this.userModel.findOne({ username: username });
+    const user = await this.userModel.findOne({ username });
     const favoriteProductIds = user
-      ? user.favorites.map((fav) => fav.toString())
+      ? user.favorites.map((fav) => fav._id.toString()) // Ensure _id is string for comparison
       : [];
 
     const products = await this.productModel
@@ -37,10 +57,13 @@ export class ProductsService {
       .populate('producer')
       .exec();
 
-    return products.map((product) => ({
-      ...product.toObject(),
-      isFavorite: favoriteProductIds.includes(product._id.toString()),
-    }));
+    return products.map((product) => {
+      const isFavorite = favoriteProductIds.includes(product._id.toString());
+      return {
+        ...product.toObject(),
+        isFavorite,
+      };
+    });
   }
 
   async findOne(productId: string, username: string): Promise<any> {

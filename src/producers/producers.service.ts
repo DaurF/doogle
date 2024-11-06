@@ -1,10 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateProducerDto } from './dto/create-producer.dto';
-import { UpdateProducerDto } from './dto/update-producer.dto';
 import { InjectModel } from '@nestjs/mongoose';
-import { Product } from '../products/schemas/product.schema';
 import { Model } from 'mongoose';
 import { Producer, ProducerDocument } from './schemas/producer.schema';
+import { UpdateProducerDto } from './dto/update-producer.dto';
 
 @Injectable()
 export class ProducersService {
@@ -25,11 +24,26 @@ export class ProducersService {
   //   return `This action returns a #${id} producer`;
   // }
   //
-  // update(id: number, updateProducerDto: UpdateProducerDto) {
-  //   return `This action updates a #${id} producer`;
-  // }
+  async update(id: string, updateProducerDto: UpdateProducerDto) {
+    const updatedProducer = await this.producerModel
+      .findByIdAndUpdate(id, updateProducerDto, { new: true })
+      .exec();
+
+    if (!updatedProducer) {
+      throw new NotFoundException(`Category with ID ${id} not found`);
+    }
+
+    return updatedProducer;
+  }
+
   //
-  // remove(id: number) {
-  //   return `This action removes a #${id} producer`;
-  // }
+  async remove(id: string) {
+    const result = await this.producerModel.findByIdAndDelete(id).exec();
+
+    if (!result) {
+      throw new NotFoundException(`Producer with ID ${id} not found`);
+    }
+
+    return { message: `Producer with ID ${id} has been deleted successfully` };
+  }
 }

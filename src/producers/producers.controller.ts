@@ -3,9 +3,9 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
+  Patch,
 } from '@nestjs/common';
 import { ProducersService } from './producers.service';
 import { CreateProducerDto } from './dto/create-producer.dto';
@@ -30,16 +30,16 @@ export class ProducersController {
   //   return this.producersService.findOne(+id);
   // }
   //
-  // @Patch(':id')
-  // update(
-  //   @Param('id') id: string,
-  //   @Body() updateProducerDto: UpdateProducerDto,
-  // ) {
-  //   return this.producersService.update(+id, updateProducerDto);
-  // }
-  //
-  // @Delete(':id')
-  // remove(@Param('id') id: string) {
-  //   return this.producersService.remove(+id);
-  // }
+  @Patch(':id')
+  update(
+    @Param('id') id: string,
+    @Body() updateProducerDto: UpdateProducerDto,
+  ) {
+    return this.producersService.update(id, updateProducerDto);
+  }
+
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.producersService.remove(id);
+  }
 }

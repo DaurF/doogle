@@ -3,14 +3,14 @@ import { HydratedDocument } from 'mongoose';
 
 @Schema()
 export class Producer {
-  @Prop({ required: true, unique: true })
+  @Prop({ required: true })
   name: string;
 
   @Prop({ required: true })
-  country: string;
+  country?: string;
 
-  @Prop({ required: true })
-  imageUrl: string;
+  @Prop()
+  imageUrl?: string;
 
   @Prop()
   website?: string;
