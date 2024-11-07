@@ -1,8 +1,11 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Headers,
+  HttpException,
+  HttpStatus,
   NotFoundException,
   Param,
   Patch,
@@ -26,19 +29,64 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
-  @Patch(':productId')
-  favorite(@Headers('User') username: string, @Body() product: Product) {
-    return this.usersService.toggleFavoriteProduct(username, product);
+  // @Patch(':productId')
+  // favorite(@Headers('User') username: string, @Body() product: Product) {
+  //   return this.usersService.toggleFavoriteProduct(username, product);
+  // }
+
+  @Post('cart/:productId')
+  async addToCart(
+    @Headers('User') username: string,
+    @Param('productId') productId: string,
+  ) {
+    try {
+      return await this.usersService.addToCart(username, productId);
+    } catch (error) {
+      throw new NotFoundException(error.message);
+    }
   }
 
-  @Get('purchase-history')
-  async getPurchaseHistory(
-    @Headers('User') username: string, // Get username from headers
+  @Delete('cart/:productId')
+  async removeFromCart(
+    @Headers('User') username: string,
+    @Param('productId') productId: string,
   ) {
-    if (!username) {
-      throw new NotFoundException('Username header is required');
+    try {
+      return await this.usersService.removeFromCart(username, productId);
+    } catch (error) {
+      throw new NotFoundException(error.message);
     }
+  }
 
-    return await this.usersService.getPurchaseHistory(username);
+  @Get('cart')
+  async getCart(@Headers('User') username: string) {
+    try {
+      return await this.usersService.getCart(username);
+    } catch (error) {
+      throw new HttpException(
+        error.message || 'Could not retrieve cart items',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  @Patch('cart')
+  async updateCartQuantity(
+    @Headers('User') username: string,
+    @Body('productId') productId: string,
+    @Body('quantity') quantity: number,
+  ) {
+    try {
+      return await this.usersService.updateCartQuantity(
+        username,
+        productId,
+        quantity,
+      );
+    } catch (error) {
+      throw new HttpException(
+        error.message || 'Could not update cart quantity',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 }

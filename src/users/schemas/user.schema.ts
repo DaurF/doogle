@@ -15,7 +15,10 @@ export class User {
   @Prop({ required: true, minlength: 8, maxlength: 100 })
   password: string;
 
-  @Prop({ enum: ['customer', 'admin'], default: 'customer' })
+  @Prop({
+    enum: ['customer', 'supplier', 'moder', 'admin'],
+    default: 'customer',
+  })
   role: string;
 
   @Prop({ type: [Object] })
@@ -39,8 +42,16 @@ export class User {
     pictureUrl?: string;
   };
 
-  @Prop({ type: [Types.ObjectId], ref: 'Product', default: [] })
-  purchaseHistory: Types.ObjectId[];
+  @Prop({
+    type: [
+      {
+        product: { type: Types.ObjectId, ref: 'Product', required: true },
+        quantity: { type: Number, default: 1 },
+      },
+    ],
+    default: [],
+  })
+  cart: { product: Types.ObjectId; quantity: number }[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

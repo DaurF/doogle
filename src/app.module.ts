@@ -9,6 +9,7 @@ import { InteractionsModule } from './interactions/interactions.module';
 import { CategoriesModule } from './categories/categories.module';
 import { ProducersModule } from './producers/producers.module';
 import { AuthModule } from './auth/auth.module';
+import { RequestsModule } from './requests/requests.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { AuthModule } from './auth/auth.module';
     CategoriesModule,
     ProducersModule,
     AuthModule,
+    RequestsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

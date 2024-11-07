@@ -12,5 +12,6 @@ import { Producer, ProducerSchema } from './schemas/producer.schema';
   ],
   controllers: [ProducersController],
   providers: [ProducersService],
+  exports: [MongooseModule],
 })
 export class ProducersModule {}

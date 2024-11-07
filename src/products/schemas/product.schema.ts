@@ -13,6 +13,9 @@ export class Product {
   @Prop({ required: true })
   description: string;
 
+  @Prop({ required: true, type: Types.ObjectId, ref: 'User' })
+  userId: string;
+
   @Prop({ required: true, type: Producer })
   producer: Producer;
 

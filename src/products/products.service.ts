@@ -47,6 +47,7 @@ export class ProductsService {
 
   async findAll(username: string) {
     const user = await this.userModel.findOne({ username });
+    console.log(user.favorites);
     const favoriteProductIds = user
       ? user.favorites.map((fav) => fav._id.toString()) // Ensure _id is string for comparison
       : [];
@@ -66,13 +67,17 @@ export class ProductsService {
     });
   }
 
-  async findOne(productId: string, username: string): Promise<any> {
+  async findOne(productId: string, username: string) {
     const user = await this.userModel.findOne({ username: username });
     if (!user) {
       throw new NotFoundException('User not found');
     }
 
     const favoriteProductIds = user.favorites.map((fav) => fav.toString());
+
+    const cartProductIds = user.cart.map((cartItem) =>
+      cartItem.product.toString(),
+    );
 
     const product = await this.productModel
       .findById(productId)
@@ -84,6 +89,9 @@ export class ProductsService {
     }
 
     const isFavorite = favoriteProductIds.includes(product._id.toString());
+
+    console.log('isFavorite', isFavorite);
+    const isInCart = cartProductIds.includes(product._id.toString());
 
     const existingView = await this.interactionModel.findOne({
       user: user._id,
@@ -103,6 +111,7 @@ export class ProductsService {
     return {
       ...product.toObject(),
       isFavorite,
+      isInCart,
     };
   }
 
