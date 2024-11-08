@@ -45,26 +45,61 @@ export class ProductsService {
     return updatedProduct;
   }
 
-  async findAll(username: string) {
+  async findAll(
+    username: string,
+    {
+      page = 1,
+      limit = 10,
+      search,
+      category,
+      producer,
+    }: {
+      page: number;
+      limit: number;
+      search?: string;
+      category?: string;
+      producer?: string;
+    },
+  ) {
+    // Find the user (optional if you want to include user data, otherwise remove this part)
     const user = await this.userModel.findOne({ username });
-    console.log(user.favorites);
-    const favoriteProductIds = user
-      ? user.favorites.map((fav) => fav._id.toString()) // Ensure _id is string for comparison
-      : [];
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const query = {};
+
+    if (search) {
+      query['$or'] = [
+        { name: { $regex: search, $options: 'i' } },
+        { description: { $regex: search, $options: 'i' } },
+      ];
+    }
+
+    if (category) {
+      query['category.name'] = category;
+    }
+
+    if (producer) {
+      query['producer.name'] = producer;
+    }
+
+    const total = await this.productModel.countDocuments(query).exec();
+
+    const skip = (page - 1) * limit;
 
     const products = await this.productModel
-      .find()
+      .find(query)
+      .skip(skip)
+      .limit(limit)
       .populate('category')
       .populate('producer')
       .exec();
 
-    return products.map((product) => {
-      const isFavorite = favoriteProductIds.includes(product._id.toString());
-      return {
-        ...product.toObject(),
-        isFavorite,
-      };
-    });
+    return {
+      products,
+      total,
+    };
   }
 
   async findOne(productId: string, username: string) {

@@ -28,22 +28,22 @@ export class UsersService {
     return newUser.save();
   }
 
-  // async toggleFavoriteProduct(username: string, product: Product) {
-  //   const user = await this.userModel.findOne({ username });
-  //   if (!user) {
-  //     throw new NotFoundException('User not found');
-  //   }
-  //
-  //   const favoriteIndex = user.favorites.findIndex(
-  //     (fav) => fav._id.toString() === product._id.toString(),
-  //   );
-  //
-  //   if (favoriteIndex >= 0) user.favorites.splice(favoriteIndex, 1);
-  //   else user.favorites.push(product);
-  //
-  //   await user.save();
-  //   return user;
-  // }
+  async addToFavorites(username: string, productId: string) {
+    console.log('addToFavorites', username);
+    const user = await this.userModel.findOne({ username });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const productObjectId = new Types.ObjectId(productId);
+
+    if (!user.favorites.includes(productObjectId)) {
+      user.favorites.push(productObjectId);
+      await user.save();
+    }
+
+    return user;
+  }
 
   async addProductToPurchaseHistory(
     username: string,
@@ -166,5 +166,44 @@ export class UsersService {
 
     await user.save();
     return user.cart;
+  }
+
+  async removeFromFavorites(username: string, productId: string) {
+    const user = await this.userModel.findOne({ username });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    user.favorites = user.favorites.filter(
+      (favId) => favId.toString() !== productId,
+    );
+
+    await user.save();
+    return { message: 'Product removed from favorites successfully' };
+  }
+
+  async getFavoriteProducts(username: string) {
+    const user = await this.userModel
+      .findOne({ username })
+      .populate('favorites');
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return user.favorites;
+  }
+
+  async clearCart(username: string) {
+    const user = await this.userModel.findOne({ username });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    user.cart = [];
+    await user.save();
+
+    return user;
   }
 }

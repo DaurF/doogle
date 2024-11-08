@@ -10,6 +10,7 @@ import { CategoriesModule } from './categories/categories.module';
 import { ProducersModule } from './producers/producers.module';
 import { AuthModule } from './auth/auth.module';
 import { RequestsModule } from './requests/requests.module';
+import { OrdersModule } from './orders/orders.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { RequestsModule } from './requests/requests.module';
     ProducersModule,
     AuthModule,
     RequestsModule,
+    OrdersModule,
   ],
   controllers: [AppController],
   providers: [AppService],

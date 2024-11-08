@@ -8,6 +8,7 @@ import {
   Headers,
   NotFoundException,
   Patch,
+  Query,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -32,8 +33,21 @@ export class ProductsController {
   }
 
   @Get()
-  findAll(@Headers('User') username: string) {
-    return this.productsService.findAll(username);
+  findAll(
+    @Headers('User') username: string,
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+    @Query('search') search: string,
+    @Query('category') category: string,
+    @Query('producer') producer: string,
+  ) {
+    return this.productsService.findAll(username, {
+      page,
+      limit,
+      search,
+      category,
+      producer,
+    });
   }
 
   @Get(':productId')

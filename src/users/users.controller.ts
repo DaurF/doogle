@@ -13,11 +13,57 @@ import {
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
-import { Product } from '../products/schemas/product.schema';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
+
+  @Post('favorites')
+  async addToFavorites(
+    @Headers('User') username: string,
+    @Body('productId') productId: string,
+  ) {
+    if (!username) {
+      throw new NotFoundException('Username not provided in headers');
+    }
+
+    return await this.usersService.addToFavorites(username, productId);
+  }
+
+  @Delete('favorites/:productId')
+  async removeFromFavorites(
+    @Headers('User') username: string,
+    @Param('productId') productId: string,
+  ) {
+    if (!username) {
+      throw new NotFoundException('Username not provided in headers');
+    }
+
+    try {
+      return await this.usersService.removeFromFavorites(username, productId);
+    } catch (error) {
+      throw new HttpException(
+        error.message || 'Could not remove product from favorites',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  @Get('favorites')
+  async getFavoriteProducts(@Headers('User') username: string) {
+    if (!username) {
+      throw new NotFoundException('Username not provided in headers');
+    }
+
+    try {
+      return await this.usersService.getFavoriteProducts(username);
+    } catch (error) {
+      throw new HttpException(
+        error.message || 'Could not retrieve favorite products',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
 
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
@@ -34,10 +80,10 @@ export class UsersController {
   //   return this.usersService.toggleFavoriteProduct(username, product);
   // }
 
-  @Post('cart/:productId')
+  @Post('cart')
   async addToCart(
     @Headers('User') username: string,
-    @Param('productId') productId: string,
+    @Body('productId') productId: string,
   ) {
     try {
       return await this.usersService.addToCart(username, productId);
@@ -88,5 +134,14 @@ export class UsersController {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+  }
+
+  @Delete('cart')
+  async clearCart(@Headers('User') username: string) {
+    if (!username) {
+      throw new NotFoundException('Username not provided in headers');
+    }
+
+    return await this.usersService.clearCart(username);
   }
 }
