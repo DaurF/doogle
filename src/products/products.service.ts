@@ -125,7 +125,6 @@ export class ProductsService {
 
     const isFavorite = favoriteProductIds.includes(product._id.toString());
 
-    console.log('isFavorite', isFavorite);
     const isInCart = cartProductIds.includes(product._id.toString());
 
     const existingView = await this.interactionModel.findOne({
@@ -198,16 +197,12 @@ export class ProductsService {
       (interaction) => interaction.product,
     );
 
-    console.log(interactedProductIds);
-
     const similarUserInteractions = await this.interactionModel
       .find({
         product: { $in: interactedProductIds },
         user: { $ne: user._id },
       })
       .populate('product');
-
-    console.log(similarUserInteractions);
 
     const productWeightMap = new Map<string, number>();
 
@@ -243,7 +238,7 @@ export class ProductsService {
       .slice(0, 15)
       .map((entry) => entry[0]);
 
-    return await this.productModel.find({
+    return this.productModel.find({
       _id: { $in: recommendedProductIds },
     });
   }

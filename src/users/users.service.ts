@@ -29,7 +29,6 @@ export class UsersService {
   }
 
   async addToFavorites(username: string, productId: string) {
-    console.log('addToFavorites', username);
     const user = await this.userModel.findOne({ username });
     if (!user) {
       throw new NotFoundException('User not found');
@@ -136,8 +135,6 @@ export class UsersService {
     productId: string,
     quantity: number,
   ) {
-    console.log(username, productId, quantity);
-
     if (quantity < 0) {
       throw new BadRequestException('Quantity cannot be negative');
     }
