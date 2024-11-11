@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { Order, OrderDocument } from './schemas/order.schema';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, ObjectId, Types } from 'mongoose';
 import { UsersService } from '../users/users.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { User, UserDocument } from '../users/schemas/user.schema';
@@ -75,5 +75,80 @@ export class OrdersService {
       .find({ customer_id: user._id })
       .populate('products.product')
       .exec();
+  }
+
+  async findOrdersBySupplier(supplierId: string) {
+    console.log('orders');
+
+    const orders = await this.orderModel
+      .find({
+        [`confirmed.${supplierId}`]: { $exists: true },
+      })
+      .populate('products.product')
+      .exec();
+
+    return orders;
+  }
+
+  async confirmOrder(orderId: string, supplierId: string): Promise<Order> {
+    const order = await this.orderModel.findById(orderId);
+    if (!order) {
+      throw new NotFoundException(`Order with ID ${orderId} not found`);
+    }
+
+    order.confirmed.set(supplierId, true);
+    order.markModified('confirmed');
+
+    await order.save();
+
+    return order;
+  }
+
+  async getSupplierStatistics(
+    supplierId: Types.ObjectId,
+  ): Promise<{ orderCount: number; totalRevenue: number }> {
+    const orders = await this.orderModel.aggregate([
+      {
+        $match: {
+          confirmed: {
+            [supplierId.toString()]: true,
+          },
+        },
+      },
+      {
+        $unwind: '$products',
+      },
+      {
+        $lookup: {
+          from: 'products',
+          localField: 'products.product',
+          foreignField: '_id',
+          as: 'productDetails',
+        },
+      },
+      {
+        $unwind: '$productDetails',
+      },
+      {
+        $group: {
+          _id: null,
+          orderCount: { $sum: 1 },
+          totalRevenue: {
+            $sum: {
+              $multiply: ['$products.quantity', '$productDetails.price'],
+            },
+          },
+        },
+      },
+    ]);
+
+    if (orders.length === 0) {
+      return { orderCount: 0, totalRevenue: 0 };
+    }
+
+    return {
+      orderCount: orders[0].orderCount,
+      totalRevenue: orders[0].totalRevenue,
+    };
   }
 }

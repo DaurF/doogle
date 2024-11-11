@@ -15,22 +15,4 @@ export class InteractionsController {
   findAll() {
     return this.interactionsService.findAll();
   }
-
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.interactionsService.findOne(+id);
-  // }
-
-  // @Patch(':id')
-  // update(
-  //   @Param('id') id: string,
-  //   @Body() updateInteractionDto: UpdateInteractionDto,
-  // ) {
-  //   return this.interactionsService.update(+id, updateInteractionDto);
-  // }
-  //
-  // @Delete(':id')
-  // remove(@Param('id') id: string) {
-  //   return this.interactionsService.remove(+id);
-  // }
 }
